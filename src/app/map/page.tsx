@@ -1,22 +1,22 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup, ZoomControl } from "react-leaflet";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
 import { fetchAllEvents, EONETEvent, getEventCoordinates } from "@/lib/api";
 import { MobileNav } from "@/components/MobileNav";
 import { formatDistanceToNow } from "date-fns";
-import { List, ShieldCheck, MapPin, Globe, Clock, Flame, Wind, Mountain, Waves, Activity, Droplets, Sun, CloudFog, Zap, Thermometer, TriangleAlert, Snowflake } from "lucide-react";
+import { List, Globe, MapPin, Clock, Flame, Wind, Mountain, Waves, Activity, Droplets, Sun, CloudFog, Zap, Thermometer, TriangleAlert, Snowflake } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const DefaultIcon = L.icon({
-  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-  iconSize: [20, 30],
-  iconAnchor: [10, 30],
+// Dynamically import the map component with SSR disabled
+const TacticalMap = dynamic(() => import("@/components/TacticalMap"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-full w-full bg-background flex items-center justify-center">
+      <div className="w-8 h-8 rounded-full border-2 border-primary-600/20 border-t-primary-600 animate-spin" />
+    </div>
+  ),
 });
-L.Marker.prototype.options.icon = DefaultIcon;
 
 export default function TacticalMapPage() {
   const [events, setEvents] = useState<EONETEvent[]>([]);
@@ -101,45 +101,7 @@ export default function TacticalMapPage() {
 
       <div className="h-full w-full">
         {viewMode === "map" ? (
-          <MapContainer
-            center={[20, 0]}
-            zoom={3}
-            scrollWheelZoom={true}
-            className="h-full w-full grayscale-[0.5] contrast-[1.1] dark:invert dark:hue-rotate-180"
-            zoomControl={false}
-          >
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-            <ZoomControl position="topright" />
-
-            {events.map((event) => {
-              const coords = getEventCoordinates(event);
-              const date = new Date(event.geometry[event.geometry.length - 1].date);
-
-              return (
-                <Marker key={event.id} position={[coords.lat, coords.lng]}>
-                  <Popup className="premium-popup">
-                    <div className="p-2 min-w-[200px] space-y-3">
-                      <div className="flex items-center gap-2">
-                        <ShieldCheck className="w-3.5 h-3.5 text-primary-600" />
-                        <span className="text-[10px] font-black uppercase tracking-widest text-muted">NASA EONET</span>
-                      </div>
-                      <h3 className="text-sm font-black tracking-tight leading-none text-gray-900">{event.title}</h3>
-                      <div className="flex items-center gap-2 text-[10px] font-bold text-muted">
-                        <MapPin className="w-3 h-3" />
-                        <span>{coords.lat.toFixed(2)}, {coords.lng.toFixed(2)}</span>
-                      </div>
-                      <p className="text-[10px] text-muted-foreground italic">
-                        {formatDistanceToNow(date, { addSuffix: true })}
-                      </p>
-                    </div>
-                  </Popup>
-                </Marker>
-              );
-            })}
-          </MapContainer>
+          <TacticalMap events={events} />
         ) : (
           <div className="h-full w-full overflow-y-auto bg-gray-50 dark:bg-background p-4">
             <div className="max-w-4xl mx-auto space-y-4">
