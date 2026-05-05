@@ -1,0 +1,21 @@
+{
+  "name": "Geo-Guardian",
+  "short_name": "Geo-Guardian",
+  "description": "Proximity-aware natural disaster news feed.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F5F5F5",
+  "theme_color": "#1565C0",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
